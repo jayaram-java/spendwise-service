@@ -1,0 +1,28 @@
+server:
+  port: 8086  
+  servlet:
+    context-path: /expenseservice
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/personalhubmgmt?allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+app:
+  cors:
+    allowed-origins: "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173"
+
+security:
+  jwt:
+    secret: 4Dg8b9n6G1JQZJX2t2lP3d0fKc9v6d8xq0Lk5m3v2wA=
+
