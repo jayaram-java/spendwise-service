@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.jayaram.spendwise_service.dto.ExpenseCategoryCreateRequest;
 import com.jayaram.spendwise_service.dto.ExpenseCategoryResponse;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/expense-categories")
+@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 @Slf4j
 public class ExpenseCategoryController {

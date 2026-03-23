@@ -5,7 +5,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,6 +47,25 @@ public class JwtService {
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    public List<String> extractRoles(String token) {
+        return extractClaim(token, claims -> {
+            Object roles = claims.get("roles");
+            if (roles == null) {
+                roles = claims.get("authorities");
+            }
+            if (roles instanceof Collection<?> collection) {
+                return collection.stream()
+                        .filter(Objects::nonNull)
+                        .map(Object::toString)
+                        .collect(Collectors.toList());
+            }
+            if (roles instanceof String roleString) {
+                return List.of(roleString);
+            }
+            return List.of();
+        });
     }
 
     private Claims extractAllClaims(String token) {
