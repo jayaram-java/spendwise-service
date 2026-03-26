@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/expense-categories")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 @Slf4j
 public class ExpenseCategoryController {
@@ -33,6 +32,7 @@ public class ExpenseCategoryController {
     private final ExpenseCategoryService expenseCategoryService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExpenseCategoryResponse> createCategory(
             @Valid @RequestBody ExpenseCategoryCreateRequest request) {
         log.info("Create expense category request received");
@@ -41,18 +41,21 @@ public class ExpenseCategoryController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN','USER')")
     public ResponseEntity<List<ExpenseCategoryResponse>> getAllCategories() {
         log.info("Get all expense categories request received");
         return ResponseEntity.ok(expenseCategoryService.getAllCategories());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExpenseCategoryResponse> getCategoryById(@PathVariable Long id) {
         log.info("Get expense category by id request received id={}", id);
         return ResponseEntity.ok(expenseCategoryService.getCategoryById(id));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ExpenseCategoryResponse> updateCategory(@PathVariable Long id,
             @Valid @RequestBody ExpenseCategoryUpdateRequest request) {
         log.info("Update expense category request received id={}", id);
@@ -60,6 +63,7 @@ public class ExpenseCategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         log.info("Delete expense category request received id={}", id);
         expenseCategoryService.deleteCategory(id);
