@@ -2,19 +2,25 @@ package com.jayaram.spendwise_service.serviceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.jayaram.spendwise_service.dto.ExpenseDetailResponse;
+import com.jayaram.spendwise_service.dto.ExpenseDailySpendItem;
+import com.jayaram.spendwise_service.dto.ExpenseMonthlySpendItem;
 import com.jayaram.spendwise_service.dto.ExpenseReportCategorySummary;
 import com.jayaram.spendwise_service.dto.ExpenseReportSummaryResponse;
+import com.jayaram.spendwise_service.dto.ExpenseTrendResponse;
 import com.jayaram.spendwise_service.exception.BadRequestException;
 import com.jayaram.spendwise_service.exception.ResourceNotFoundException;
 import com.jayaram.spendwise_service.model.ExpenseCategory;
@@ -33,6 +39,8 @@ public class ExpenseReportServiceImpl implements ExpenseReportService {
 
     private final ExpenseDetailRepository expenseDetailRepository;
     private final ExpenseCategoryRepository expenseCategoryRepository;
+    private static final DateTimeFormatter DAY_LABEL_FORMAT = DateTimeFormatter.ofPattern("EEE");
+    private static final DateTimeFormatter MONTH_LABEL_FORMAT = DateTimeFormatter.ofPattern("MMM");
 
     @Override
     public ExpenseReportSummaryResponse getExpenseSummary(Long userId, LocalDate startDate, LocalDate endDate,
@@ -79,6 +87,83 @@ public class ExpenseReportServiceImpl implements ExpenseReportService {
         List<ExpenseDetail> details = fetchDetails(userId, startDate, endDate, categoryId);
         log.info("Fetched {} expense records for details userId={} categoryId={}", details.size(), userId, categoryId);
         return details.stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public ExpenseTrendResponse getExpenseTrends(Long userId) {
+        validateUserId(userId);
+
+        LocalDate today = LocalDate.now();
+        LocalDate dailyStartDate = today.minusDays(6);
+
+        List<ExpenseDetail> dailyDetails = expenseDetailRepository
+                .findByUserIdAndExpenseDateBetweenAndIsDeletedFalse(userId, dailyStartDate, today);
+
+        Map<LocalDate, BigDecimal> dailyTotals = new TreeMap<>();
+        for (ExpenseDetail detail : dailyDetails) {
+            if (detail.getExpenseDate() == null) {
+                continue;
+            }
+            BigDecimal amount = detail.getAmount() == null ? BigDecimal.ZERO : detail.getAmount();
+            dailyTotals.merge(detail.getExpenseDate(), amount, BigDecimal::add);
+        }
+
+        List<ExpenseDailySpendItem> dailySpends = new ArrayList<>();
+        BigDecimal dailyTotalAmount = BigDecimal.ZERO;
+        for (LocalDate date = dailyStartDate; !date.isAfter(today); date = date.plusDays(1)) {
+            BigDecimal amount = dailyTotals.getOrDefault(date, BigDecimal.ZERO);
+            dailyTotalAmount = dailyTotalAmount.add(amount);
+            dailySpends.add(ExpenseDailySpendItem.builder()
+                    .date(date)
+                    .dayLabel(date.format(DAY_LABEL_FORMAT))
+                    .amount(amount)
+                    .build());
+        }
+
+        YearMonth currentMonth = YearMonth.from(today);
+        YearMonth startMonth = currentMonth.minusMonths(5);
+        LocalDate monthlyStartDate = startMonth.atDay(1);
+
+        List<ExpenseDetail> monthlyDetails = expenseDetailRepository
+                .findByUserIdAndExpenseDateBetweenAndIsDeletedFalse(userId, monthlyStartDate, today);
+
+        Map<YearMonth, BigDecimal> monthlyTotals = new TreeMap<>();
+        for (ExpenseDetail detail : monthlyDetails) {
+            if (detail.getExpenseDate() == null) {
+                continue;
+            }
+            YearMonth month = YearMonth.from(detail.getExpenseDate());
+            BigDecimal amount = detail.getAmount() == null ? BigDecimal.ZERO : detail.getAmount();
+            monthlyTotals.merge(month, amount, BigDecimal::add);
+        }
+
+        List<ExpenseMonthlySpendItem> monthlySpends = new ArrayList<>();
+        BigDecimal monthlyTotalAmount = BigDecimal.ZERO;
+        for (YearMonth month = startMonth; !month.isAfter(currentMonth); month = month.plusMonths(1)) {
+            BigDecimal amount = monthlyTotals.getOrDefault(month, BigDecimal.ZERO);
+            monthlyTotalAmount = monthlyTotalAmount.add(amount);
+            LocalDate monthStart = month.atDay(1);
+            monthlySpends.add(ExpenseMonthlySpendItem.builder()
+                    .monthStart(monthStart)
+                    .monthLabel(monthStart.format(MONTH_LABEL_FORMAT))
+                    .amount(amount)
+                    .build());
+        }
+
+        String currency = resolveCurrency(dailyDetails, monthlyDetails);
+
+        return ExpenseTrendResponse.builder()
+                .userId(userId)
+                .currency(currency)
+                .dailyStartDate(dailyStartDate)
+                .dailyEndDate(today)
+                .dailyTotalAmount(dailyTotalAmount)
+                .dailySpends(dailySpends)
+                .monthlyStartDate(monthlyStartDate)
+                .monthlyEndDate(today)
+                .monthlyTotalAmount(monthlyTotalAmount)
+                .monthlySpends(monthlySpends)
+                .build();
     }
 
     private void validateUserId(Long userId) {
@@ -205,6 +290,22 @@ public class ExpenseReportServiceImpl implements ExpenseReportService {
                 .modifiedBy(detail.getModifiedBy())
                 .modifiedDate(detail.getModifiedDate())
                 .build();
+    }
+
+    private String resolveCurrency(List<ExpenseDetail> dailyDetails, List<ExpenseDetail> monthlyDetails) {
+        String dailyCurrency = dailyDetails.stream()
+                .map(ExpenseDetail::getCurrency)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+        if (dailyCurrency != null) {
+            return dailyCurrency;
+        }
+        return monthlyDetails.stream()
+                .map(ExpenseDetail::getCurrency)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse("INR");
     }
 
     private static class CategoryAccumulator {

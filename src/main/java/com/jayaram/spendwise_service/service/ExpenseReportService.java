@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.jayaram.spendwise_service.dto.ExpenseDetailResponse;
 import com.jayaram.spendwise_service.dto.ExpenseReportSummaryResponse;
+import com.jayaram.spendwise_service.dto.ExpenseTrendResponse;
 
 public interface ExpenseReportService {
 
@@ -13,4 +14,6 @@ public interface ExpenseReportService {
 
     List<ExpenseDetailResponse> getExpenseDetails(Long userId, LocalDate startDate, LocalDate endDate,
             Long categoryId);
+
+    ExpenseTrendResponse getExpenseTrends(Long userId);
 }

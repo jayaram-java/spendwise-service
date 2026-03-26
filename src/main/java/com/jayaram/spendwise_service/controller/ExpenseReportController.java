@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.jayaram.spendwise_service.dto.ExpenseDetailResponse;
 import com.jayaram.spendwise_service.dto.ExpenseReportSummaryResponse;
+import com.jayaram.spendwise_service.dto.ExpenseTrendResponse;
 import com.jayaram.spendwise_service.service.ExpenseReportService;
 
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,12 @@ public class ExpenseReportController {
         List<ExpenseDetailResponse> details = expenseReportService.getExpenseDetails(userId, startDate, endDate,
                 categoryId);
         return ResponseEntity.ok(details);
+    }
+
+    @GetMapping("/trends")
+    public ResponseEntity<ExpenseTrendResponse> getExpenseTrends(@RequestParam Long userId) {
+        log.info("Expense trends request received userId={}", userId);
+        ExpenseTrendResponse response = expenseReportService.getExpenseTrends(userId);
+        return ResponseEntity.ok(response);
     }
 }
