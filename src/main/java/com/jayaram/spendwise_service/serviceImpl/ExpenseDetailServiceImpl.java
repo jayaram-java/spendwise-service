@@ -16,6 +16,7 @@ import com.jayaram.spendwise_service.model.ExpenseDetail;
 import com.jayaram.spendwise_service.repository.ExpenseCategoryRepository;
 import com.jayaram.spendwise_service.repository.ExpenseDetailRepository;
 import com.jayaram.spendwise_service.service.ExpenseDetailService;
+import com.jayaram.spendwise_service.util.ExpenseCodeGenerator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class ExpenseDetailServiceImpl implements ExpenseDetailService {
 
     private final ExpenseDetailRepository expenseDetailRepository;
     private final ExpenseCategoryRepository expenseCategoryRepository;
+    private final ExpenseCodeGenerator expenseCodeGenerator;
 
     @Override
     public ExpenseDetailResponse createExpenseDetail(ExpenseDetailCreateRequest request) {
@@ -35,6 +37,8 @@ public class ExpenseDetailServiceImpl implements ExpenseDetailService {
         }
 
         ExpenseCategory category = resolveCategory(request.getCategoryId());
+        Long userId = expenseCodeGenerator.getCurrentUserId();
+        String expenseCode = expenseCodeGenerator.generateNextExpenseCode(userId, request.getExpenseDate());
 
         ExpenseDetail detail = ExpenseDetail.builder()
                 .expenseName(request.getExpenseName())
@@ -42,11 +46,11 @@ public class ExpenseDetailServiceImpl implements ExpenseDetailService {
                 .amount(request.getAmount())
                 .description(request.getDescription())
                 .paymentMethod(request.getPaymentMethod())
-                .expenseCode(request.getExpenseCode())
+                .expenseCode(expenseCode)
                 .referenceNumber(request.getReferenceNumber())
                 .receiptUrl(request.getReceiptUrl())
                 .currency(request.getCurrency() == null ? "INR" : request.getCurrency())
-                .userId(request.getUserId())
+                .userId(userId)
                 .status(request.getStatus() == null ? "ACTIVE" : request.getStatus())
                 .isDeleted(false)
                 .category(category)

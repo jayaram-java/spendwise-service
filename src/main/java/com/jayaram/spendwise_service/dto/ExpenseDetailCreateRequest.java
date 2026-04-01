@@ -35,7 +35,6 @@ public class ExpenseDetailCreateRequest {
 
     private String currency;
 
-    @NotNull(message = "is required")
     private Long userId;
 
     private String status;

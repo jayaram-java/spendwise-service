@@ -2,6 +2,7 @@ package com.jayaram.spendwise_service.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -27,4 +28,7 @@ public interface ExpenseDetailRepository extends JpaRepository<ExpenseDetail, Lo
 
     List<ExpenseDetail> findByUserIdAndCategoryIdAndExpenseDateBetweenAndIsDeletedFalse(
             Long userId, Long categoryId, LocalDate startDate, LocalDate endDate);
+
+    Optional<ExpenseDetail> findTopByUserIdAndExpenseCodeStartingWithOrderByIdDesc(
+            Long userId, String expenseCodePrefix);
 }
