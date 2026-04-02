@@ -54,6 +54,9 @@ public class ExpenseCodeGenerator {
 
         String rawId = null;
         Object principal = authentication.getPrincipal();
+        if (principal instanceof Number number) {
+            return number.longValue();
+        }
         if (principal instanceof String principalString) {
             rawId = principalString;
         }
