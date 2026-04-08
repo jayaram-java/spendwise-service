@@ -10,7 +10,7 @@ import com.jayaram.spendwise_service.model.ExpenseDetail;
 
 public interface ExpenseDetailRepository extends JpaRepository<ExpenseDetail, Long> {
 
-    List<ExpenseDetail> findByIsDeletedFalse();
+    List<ExpenseDetail> findByIsDeletedFalseOrderByExpenseDateDesc();
 
     List<ExpenseDetail> findByUserIdAndIsDeletedFalse(Long userId);
 

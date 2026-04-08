@@ -70,7 +70,7 @@ public class ExpenseDetailServiceImpl implements ExpenseDetailService {
 
     @Override
     public List<ExpenseDetailResponse> getAllExpenseDetails() {
-        List<ExpenseDetail> details = expenseDetailRepository.findByIsDeletedFalse();
+        List<ExpenseDetail> details = expenseDetailRepository.findByIsDeletedFalseOrderByExpenseDateDesc();
         log.info("Fetched {} expense details", details.size());
         return details.stream().map(this::toResponse).collect(Collectors.toList());
     }
