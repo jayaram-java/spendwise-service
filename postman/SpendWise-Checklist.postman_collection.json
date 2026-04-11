@@ -1,0 +1,161 @@
+{
+  "info": {
+    "name": "SpendWise - Checklist APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "ChecklistCategory",
+      "item": [
+        {
+          "name": "Create Checklist Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklist-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklist-categories"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Home Move\",\n  \"description\": \"Checklist for moving to a new home\",\n  \"isActive\": true,\n  \"isPrimary\": true,\n  \"userId\": 101,\n  \"createdBy\": \"postman\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Checklist Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklist-categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklist-categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Checklist Category By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklist-categories/{{checklistCategoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklist-categories", "{{checklistCategoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Checklist Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklist-categories/{{checklistCategoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklist-categories", "{{checklistCategoryId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Home Move (Updated)\",\n  \"description\": \"Updated description\",\n  \"isActive\": true,\n  \"isPrimary\": false,\n  \"userId\": 101,\n  \"modifiedBy\": \"postman\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Checklist Category",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklist-categories/{{checklistCategoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklist-categories", "{{checklistCategoryId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checklist",
+      "item": [
+        {
+          "name": "Create Checklist",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklists",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklists"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Pack kitchen items\",\n  \"description\": \"Pack plates, glasses, and cookware\",\n  \"checklistCategoryId\": {{checklistCategoryId}},\n  \"userId\": 101,\n  \"status\": \"PENDING\",\n  \"referenceLink\": \"https://example.com/moving-checklist\",\n  \"completedAt\": null,\n  \"createdBy\": \"postman\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Checklists",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklists",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklists"]
+            }
+          }
+        },
+        {
+          "name": "Get Checklist By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklists/{{checklistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklists", "{{checklistId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Checklist",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklists/{{checklistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklists", "{{checklistId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Pack kitchen items (Updated)\",\n  \"description\": \"Include pantry items\",\n  \"checklistCategoryId\": {{checklistCategoryId}},\n  \"userId\": 101,\n  \"status\": \"IN_PROGRESS\",\n  \"referenceLink\": \"https://example.com/moving-checklist-updated\",\n  \"completedAt\": null,\n  \"modifiedBy\": \"postman\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Checklist",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/checklists/{{checklistId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "checklists", "{{checklistId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "checklistCategoryId", "value": "1" },
+    { "key": "checklistId", "value": "1" }
+  ]
+}
