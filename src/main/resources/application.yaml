@@ -1,11 +1,11 @@
 server:
-  port: 8086  
+  port: 8086
   servlet:
     context-path: /expenseservice
 
 spring:
   application:
-    name: auth-service
+    name: spendwise-service
   datasource:
     url: jdbc:mysql://localhost:3306/personalhubmgmt?allowPublicKeyRetrieval=true&useSSL=false
     username: root
@@ -21,8 +21,42 @@ spring:
 app:
   cors:
     allowed-origins: "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173"
+  security:
+    actuator-open: true
 
 security:
   jwt:
     secret: 4Dg8b9n6G1JQZJX2t2lP3d0fKc9v6d8xq0Lk5m3v2wA=
 
+info:
+  app:
+    name: ${spring.application.name}
+    description: Expense Management Service
+    version: ${APP_VERSION:0.0.1-SNAPSHOT}
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+  prometheus:
+    metrics:
+      export:
+        enabled: true
