@@ -42,9 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             List<SimpleGrantedAuthority> authorities = jwtService.extractRoles(token).stream()
                     .map(SimpleGrantedAuthority::new)
                     .toList();
-            String principal = userId != null ? userId.toString() : username;
+            UserPrincipal principal = new UserPrincipal(userId, username, authorities);
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(principal, null, authorities);
+                    new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

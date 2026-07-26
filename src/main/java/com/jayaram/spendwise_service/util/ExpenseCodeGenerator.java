@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.jayaram.spendwise_service.exception.BadRequestException;
+import com.jayaram.spendwise_service.security.UserPrincipal;
 import com.jayaram.spendwise_service.model.ExpenseDetail;
 import com.jayaram.spendwise_service.repository.ExpenseDetailRepository;
 
@@ -54,6 +55,9 @@ public class ExpenseCodeGenerator {
 
         String rawId = null;
         Object principal = authentication.getPrincipal();
+        if (principal instanceof UserPrincipal userPrincipal && userPrincipal.getUserId() != null) {
+            return userPrincipal.getUserId();
+        }
         if (principal instanceof Number number) {
             return number.longValue();
         }

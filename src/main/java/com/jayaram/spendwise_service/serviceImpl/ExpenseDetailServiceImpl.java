@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.jayaram.spendwise_service.dto.ExpenseDetailCreateRequest;
 import com.jayaram.spendwise_service.dto.ExpenseDetailResponse;
@@ -16,6 +18,7 @@ import com.jayaram.spendwise_service.model.ExpenseDetail;
 import com.jayaram.spendwise_service.repository.ExpenseCategoryRepository;
 import com.jayaram.spendwise_service.repository.ExpenseDetailRepository;
 import com.jayaram.spendwise_service.service.ExpenseDetailService;
+import com.jayaram.spendwise_service.security.UserPrincipal;
 import com.jayaram.spendwise_service.util.ExpenseCodeGenerator;
 
 import lombok.RequiredArgsConstructor;
@@ -70,7 +73,8 @@ public class ExpenseDetailServiceImpl implements ExpenseDetailService {
 
     @Override
     public List<ExpenseDetailResponse> getAllExpenseDetails() {
-        List<ExpenseDetail> details = expenseDetailRepository.findByIsDeletedFalseOrderByExpenseDateDesc();
+        Long userId = getAuthenticatedUserId();
+        List<ExpenseDetail> details = expenseDetailRepository.findByUserIdAndIsDeletedFalse(userId);
         log.info("Fetched {} expense details", details.size());
         return details.stream().map(this::toResponse).collect(Collectors.toList());
     }
@@ -188,5 +192,26 @@ public class ExpenseDetailServiceImpl implements ExpenseDetailService {
                 .modifiedBy(detail.getModifiedBy())
                 .modifiedDate(detail.getModifiedDate())
                 .build();
+    }
+
+    private Long getAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new BadRequestException("Authenticated user is required");
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserPrincipal userPrincipal && userPrincipal.getUserId() != null) {
+            return userPrincipal.getUserId();
+        }
+        if (principal instanceof String principalValue && !principalValue.isBlank()) {
+            try {
+                return Long.parseLong(principalValue);
+            } catch (NumberFormatException ex) {
+                throw new BadRequestException("Authenticated user id is invalid");
+            }
+        }
+
+        throw new BadRequestException("Authenticated user id is missing");
     }
 }

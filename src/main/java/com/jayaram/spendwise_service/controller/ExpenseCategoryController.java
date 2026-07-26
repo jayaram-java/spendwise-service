@@ -41,7 +41,7 @@ public class ExpenseCategoryController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<List<ExpenseCategoryResponse>> getAllCategories() {
         log.info("Get all expense categories request received");
         return ResponseEntity.ok(expenseCategoryService.getAllCategories());
