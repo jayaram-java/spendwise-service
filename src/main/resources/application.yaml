@@ -6,6 +6,9 @@ server:
 spring:
   application:
     name: spendwise-service
+  cloud:
+    discovery:
+      enabled: true
   datasource:
     url: jdbc:mysql://localhost:3306/personalhubmgmt?allowPublicKeyRetrieval=true&useSSL=false
     username: root
@@ -17,16 +20,52 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: ${app.storage.receipt.max-file-size}
+      max-request-size: ${app.storage.receipt.max-request-size}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
 
 app:
+  encryption:
+    enabled: ${WEALTHTRACKER_ENCRYPTION_ENABLED:false}
+    key: ${WEALTHTRACKER_ENCRYPTION_KEY:}
   cors:
     allowed-origins: "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173"
   security:
     actuator-open: true
+  storage:
+    receipt:
+      base-path: ${RECEIPT_STORAGE_PATH:./storage/receipts}
+      max-file-size: ${RECEIPT_MAX_FILE_SIZE:15728640}
+      max-files: ${RECEIPT_MAX_FILES:10}
+      max-request-size: ${RECEIPT_MAX_REQUEST_SIZE:157286400}
+      allowed-content-types:
+        - application/pdf
+        - image/jpeg
+        - image/png
 
 security:
   jwt:
     secret: 4Dg8b9n6G1JQZJX2t2lP3d0fKc9v6d8xq0Lk5m3v2wA=
+
+logging:
+  file:
+    path: ${LOG_PATH:${LOG_BASE_PATH:./logs}}
+  level:
+    root: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    org.apache.kafka: INFO
+    com.jayaram: DEBUG
 
 info:
   app:

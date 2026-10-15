@@ -3,6 +3,7 @@ package com.jayaram.spendwise_service.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,8 @@ public class ExpenseDetailResponse {
     private String expenseCode;
     private String referenceNumber;
     private String receiptUrl;
+    @Builder.Default
+    private List<ExpenseReceiptResponse> receipts = List.of();
     private String currency;
     private Long userId;
     private String status;
